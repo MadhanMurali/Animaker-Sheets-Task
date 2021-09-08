@@ -13,7 +13,6 @@ import {
 } from "../tableSlice";
 import { useCallback, useRef, useState } from "react";
 import "./cell.scss";
-import { useEffect } from "react";
 
 export const Cell = (props: CellProps) => {
     const { inputProps, rowId, colId, ..._props } = props;
@@ -21,10 +20,6 @@ export const Cell = (props: CellProps) => {
     const isSelected = useSelector(isCellSelected({ row: rowId, col: colId }));
     const _isSelecting = useSelector(isSelecting);
     const tableDispatch = useDispatch();
-
-    // useEffect(() => {
-    //     // if (isSelected) console.log(rowId, colId, isSelected);
-    // }, [colId, isSelected, rowId]);
 
     const updateCell = (value: CellValueType) => {
         tableDispatch(
@@ -56,7 +51,6 @@ export const Cell = (props: CellProps) => {
 
     const handleMouseEnter = useCallback(() => {
         if (_isSelecting) {
-            // console.log("_isSelecting");
             tableDispatch(
                 updateSelection({
                     type: "second",

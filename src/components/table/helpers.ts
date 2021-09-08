@@ -1,5 +1,9 @@
 import { Cells, ColIdList, Rows, SelectionRows } from "./types";
-import { TableState } from "./interfaces";
+import {
+    TableAddColPayload,
+    TableAddRowPayload,
+    TableState,
+} from "./interfaces";
 
 export const getHeaderByColumnIndex = (col: number) => {
     const ASCII_A = 65;
@@ -139,6 +143,50 @@ export const buildSelectionCoordinatesHelper = (state: TableState) => {
             downLeft(true);
         }
     }
+
+    return state;
+};
+
+export const addRowHelper = (
+    state: TableState,
+    payload: TableAddRowPayload
+) => {
+    const newRowCount = state.numberOfRows + payload.count;
+
+    const newRows = makeEmptyRowsCells(
+        payload.count,
+        state.numberOfColumns,
+        state.numberOfRows
+    );
+
+    state.rows = {
+        ...state.rows,
+        ...newRows,
+    };
+
+    state.numberOfRows = newRowCount;
+
+    return state;
+};
+
+export const addColHelper = (
+    state: TableState,
+    payload: TableAddColPayload
+) => {
+    const newColCount = state.numberOfColumns + payload.count;
+
+    const newCells = makeEmptyCells(payload.count, state.numberOfColumns);
+
+    let rowIds = Object.keys(state.rows);
+
+    rowIds.forEach((rowId) => {
+        state.rows[rowId] = {
+            ...state.rows[rowId],
+            ...newCells,
+        };
+    });
+
+    state.numberOfColumns = newColCount;
 
     return state;
 };

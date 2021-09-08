@@ -1,26 +1,52 @@
 import { Row } from "./row";
-import { memo } from "react";
 import { Cell } from "./cell";
 import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
     addCol,
     addRow,
+    buildCopiedSelection,
     buildIds,
+    pasteInTarget,
     selectTable,
     selectTableIds,
 } from "./tableSlice";
-import { useEffect } from "react";
 import { Header } from "./header";
 import { getHeaderByColumnIndex } from "./helpers";
 import "./table.scss";
+import { useEffect } from "react";
+import { useCallback } from "react";
 
-export const Table = memo(() => {
+export const Table = () => {
     const tableState = useSelector(selectTable);
     const tableIds = useSelector(selectTableIds);
     const tableDispatch = useDispatch();
 
-    useEffect(() => {}, [tableDispatch, tableIds]);
+    const handleCopy = useCallback(
+        (event: ClipboardEvent) => {
+            event.preventDefault();
+            tableDispatch(buildCopiedSelection());
+        },
+        [tableDispatch]
+    );
+
+    const handlePaste = useCallback(
+        (event: ClipboardEvent) => {
+            event.preventDefault();
+            tableDispatch(pasteInTarget());
+            tableDispatch(buildIds());
+        },
+        [tableDispatch]
+    );
+
+    useEffect(() => {
+        document.documentElement.addEventListener("copy", handleCopy);
+        document.documentElement.addEventListener("paste", handlePaste);
+        return () => {
+            document.documentElement.removeEventListener("copy", handleCopy);
+            document.documentElement.removeEventListener("copy", handlePaste);
+        };
+    }, [handleCopy, handlePaste]);
 
     const HeadersJsx = useMemo(() => {
         let hJsx = [];
@@ -86,4 +112,4 @@ export const Table = memo(() => {
             </tbody>
         </table>
     );
-});
+};

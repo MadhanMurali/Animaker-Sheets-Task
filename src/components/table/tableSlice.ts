@@ -1,6 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
 import {
+    addColHelper,
+    addRowHelper,
     buildSelectionCoordinatesHelper,
     makeEmptyCells,
     makeEmptyRowsCells,
@@ -127,6 +129,7 @@ export const tableSlice = createSlice({
                 colIds.forEach((colId, colIndex) => {
                     let cell = Object.assign({}, state.rows[rowId][colId]); // clone the cell
                     copiedRows[rowIndex] = {
+                        ...copiedRows[rowIndex],
                         [colIndex]: cell,
                     };
                 });
@@ -136,6 +139,58 @@ export const tableSlice = createSlice({
         },
         buildSelectionCoordinates: (state) => {
             buildSelectionCoordinatesHelper(state);
+        },
+        pasteInTarget: (state) => {
+            if (!state.selection.firstSelection) return;
+
+            const rowsToPaste = state.selection.copiedSelection.rows;
+            const targetCellPair = state.selection.firstSelection;
+
+            const rowIds = Object.keys(rowsToPaste).sort();
+            const copiedColsCount = Object.keys(
+                rowsToPaste[rowIds[rowIds.length - 1]]
+            ).length;
+
+            const LAST_COL_INDEX = state.numberOfColumns - 1;
+            const totalColumnsRequired =
+                parseInt(targetCellPair.col) + (copiedColsCount - 1);
+            let colsToBeAdded = totalColumnsRequired - LAST_COL_INDEX;
+            colsToBeAdded = colsToBeAdded > 0 ? colsToBeAdded : 0;
+
+            const LAST_ROW_INDEX = state.numberOfRows - 1;
+            const totalRowsRequired =
+                parseInt(targetCellPair.row) + (rowIds.length - 1);
+            let rowsToBeAdded = totalRowsRequired - LAST_ROW_INDEX;
+            rowsToBeAdded = rowsToBeAdded > 0 ? rowsToBeAdded : 0;
+
+            if (colsToBeAdded) {
+                addColHelper(state, { count: colsToBeAdded });
+            }
+            if (rowsToBeAdded) {
+                addRowHelper(state, { count: rowsToBeAdded });
+            }
+
+            rowIds.forEach((rowId) => {
+                let colIds = Object.keys(rowsToPaste[rowId]).sort();
+                colIds.forEach((colId) => {
+                    let rKey = (
+                        parseInt(targetCellPair.row) + parseInt(rowId)
+                    ).toString();
+                    let cKey = (
+                        parseInt(targetCellPair.col) + parseInt(colId)
+                    ).toString();
+                    rowsToPaste[rowId][colId] = {
+                        ...rowsToPaste[rowId][colId],
+                        id: cKey,
+                    };
+                    state.rows[rKey] = {
+                        ...state.rows[rKey],
+                        [cKey]: rowsToPaste[rowId][colId],
+                    };
+                });
+            });
+
+            return state;
         },
     },
 });
@@ -151,6 +206,7 @@ export const {
     buildSelectionCoordinates,
     updateIsSelecting,
     updateSelection,
+    pasteInTarget,
 } = tableSlice.actions;
 
 export const selectTable = (state: RootState) => state.table;
@@ -163,7 +219,6 @@ export const isSelecting = (state: RootState) =>
 export const isCellSelected =
     ({ row, col }: RowColPair) =>
     (state: RootState) => {
-        console.log(state.table.selection.selectionCoordinates.rows[row]);
         return state.table.selection.selectionCoordinates.rows[row]?.includes(
             col
         );
