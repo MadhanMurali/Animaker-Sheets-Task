@@ -6,4 +6,3 @@ export type CellType = {
     id: string;
     value: CellValueType;
 };
-export type UpdateCell = (value: CellValueType, cellId: number) => void;

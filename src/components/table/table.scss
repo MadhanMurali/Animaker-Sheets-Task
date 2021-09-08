@@ -3,8 +3,59 @@ table {
     user-select: none;
 
     td {
-        border: 1px solid #000;
+        border: 2px solid rgba($color: #000000, $alpha: 0.3);
         padding: 0;
         position: relative;
+        min-width: 75px;
+        width: 75px;
+        height: 45px;
+    }
+
+    th {
+        border: 2px solid rgba($color: #000000, $alpha: 0.3);
+        min-width: 75px;
+        width: 75px;
+        height: 45px;
+        padding: 0;
+
+        &:last-of-type:not(:first-of-type) {
+            min-width: 110px;
+            border: 0;
+        }
+    }
+
+    thead {
+        th:not(:first-of-type):not(:last-of-type) {
+            background-color: #ffcbce;
+            color: #6f6f6f;
+            font-weight: 500;
+        }
+    }
+
+    tbody {
+        tr {
+            &:not(:last-of-type) {
+                th {
+                    background-color: #48ffca;
+                    color: #6f6f6f;
+                    font-weight: 500;
+                }
+            }
+            &:last-of-type {
+                th {
+                    width: auto;
+                    border: 0;
+                }
+            }
+        }
+    }
+
+    button {
+        width: 100%;
+        height: 100%;
+        background-color: rgba($color: #000000, $alpha: 0.9);
+        color: rgba($color: #fff, $alpha: 0.8);
+        border: 0;
+        outline: none;
     }
 }

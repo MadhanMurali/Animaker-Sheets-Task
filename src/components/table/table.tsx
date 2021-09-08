@@ -12,7 +12,7 @@ import {
     selectTableIds,
 } from "./tableSlice";
 import { Header } from "./header";
-import { getHeaderByColumnIndex } from "./helpers";
+import { getHeaderByColumnIndex, idSort } from "./helpers";
 import "./table.scss";
 import { useEffect } from "react";
 import { useCallback } from "react";
@@ -61,9 +61,9 @@ export const Table = () => {
             tableDispatch(buildIds());
             return;
         }
-        let rowIds = Object.keys(tableIds).sort();
+        let rowIds = Object.keys(tableIds).sort(idSort);
         return rowIds.map((rowId) => {
-            const cellsJsx = [...tableIds[rowId]].sort().map((colId) => {
+            const cellsJsx = [...tableIds[rowId]].sort(idSort).map((colId) => {
                 return <Cell rowId={rowId} colId={colId} key={colId} />;
             });
             return (

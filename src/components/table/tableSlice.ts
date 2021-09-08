@@ -4,7 +4,7 @@ import {
     addColHelper,
     addRowHelper,
     buildSelectionCoordinatesHelper,
-    makeEmptyCells,
+    idSort,
     makeEmptyRowsCells,
 } from "./helpers";
 import {
@@ -56,49 +56,16 @@ export const tableSlice = createSlice({
             return state;
         },
         addRow: (state, action: PayloadAction<TableAddRowPayload>) => {
-            const newRowCount = state.numberOfRows + action.payload.count;
-
-            const newRows = makeEmptyRowsCells(
-                action.payload.count,
-                state.numberOfColumns,
-                state.numberOfRows
-            );
-
-            state.rows = {
-                ...state.rows,
-                ...newRows,
-            };
-
-            state.numberOfRows = newRowCount;
-
-            return state;
+            return addRowHelper(state, { count: action.payload.count });
         },
         addCol: (state, action: PayloadAction<TableAddColPayload>) => {
-            const newColCount = state.numberOfColumns + action.payload.count;
-
-            const newCells = makeEmptyCells(
-                action.payload.count,
-                state.numberOfColumns
-            );
-
-            let rowIds = Object.keys(state.rows);
-
-            rowIds.forEach((rowId) => {
-                state.rows[rowId] = {
-                    ...state.rows[rowId],
-                    ...newCells,
-                };
-            });
-
-            state.numberOfColumns = newColCount;
-
-            return state;
+            return addColHelper(state, { count: action.payload.count });
         },
         buildIds: (state) => {
-            let rowIds = Object.keys(state.rows).sort();
+            let rowIds = Object.keys(state.rows).sort(idSort);
             let ids: Ids = {};
             rowIds.forEach((rowId) => {
-                let cells = Object.keys(state.rows[rowId]).sort();
+                let cells = Object.keys(state.rows[rowId]).sort(idSort);
                 ids[rowId] = cells;
             });
             state.ids = ids;
@@ -120,12 +87,12 @@ export const tableSlice = createSlice({
         },
         buildCopiedSelection: (state) => {
             let rows = state.selection.selectionCoordinates.rows;
-            let rowIds = Object.keys(rows).sort();
+            let rowIds = Object.keys(rows).sort(idSort);
             let copiedRows: Rows = {};
 
             // copy with rows and cols indexes starting from zero maintaing the same order
             rowIds.forEach((rowId, rowIndex) => {
-                let colIds = rows[rowId].sort();
+                let colIds = rows[rowId].sort(idSort);
                 colIds.forEach((colId, colIndex) => {
                     let cell = Object.assign({}, state.rows[rowId][colId]); // clone the cell
                     copiedRows[rowIndex] = {
@@ -146,7 +113,7 @@ export const tableSlice = createSlice({
             const rowsToPaste = state.selection.copiedSelection.rows;
             const targetCellPair = state.selection.firstSelection;
 
-            const rowIds = Object.keys(rowsToPaste).sort();
+            const rowIds = Object.keys(rowsToPaste).sort(idSort);
             const copiedColsCount = Object.keys(
                 rowsToPaste[rowIds[rowIds.length - 1]]
             ).length;
@@ -171,7 +138,7 @@ export const tableSlice = createSlice({
             }
 
             rowIds.forEach((rowId) => {
-                let colIds = Object.keys(rowsToPaste[rowId]).sort();
+                let colIds = Object.keys(rowsToPaste[rowId]).sort(idSort);
                 colIds.forEach((colId) => {
                     let rKey = (
                         parseInt(targetCellPair.row) + parseInt(rowId)

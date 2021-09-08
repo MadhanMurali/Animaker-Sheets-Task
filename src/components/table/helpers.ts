@@ -5,6 +5,8 @@ import {
     TableState,
 } from "./interfaces";
 
+export const idSort = (a: string, b: string) => parseInt(a) - parseInt(b);
+
 export const getHeaderByColumnIndex = (col: number) => {
     const ASCII_A = 65;
     let header = "";
@@ -37,7 +39,7 @@ export const makeEmptyRowsCells = (
         let cells = makeEmptyCells(cols, defaultColOffset, defaultValue);
         rowsObj = {
             ...rowsObj,
-            [i]: cells,
+            [i.toString()]: cells,
         };
     }
     return rowsObj;
@@ -52,8 +54,8 @@ export const makeEmptyCells = (
     for (let j = 0 + defaultColOffset; j < cols + defaultColOffset; j++) {
         cells = {
             ...cells,
-            [j]: {
-                id: j,
+            [j.toString()]: {
+                id: j.toString(),
                 value: defaultValue,
             },
         };
