@@ -1,31 +1,19 @@
-import { useState } from "react";
-import { useCallback } from "react";
 import { InputProps } from "./interfaces";
 import { useRef } from "react";
-import "./input.scss";
+import { forwardRef } from "react";
+import { InputRefType } from "./types";
+import { refAssigner } from "../../../utils";
 
-export const Input = ({ type, ...props }: InputProps) => {
-    const [editable, setEditable] = useState(false);
-    const inputRef = useRef<HTMLInputElement | null>(null);
+export const Input = forwardRef<HTMLInputElement, InputProps>(
+    ({ type, ...props }, ref) => {
+        const inputRef = useRef<InputRefType>(null);
 
-    const handleDoubleClick = useCallback(() => {
-        setEditable(true);
-        if (inputRef.current) inputRef.current.focus();
-    }, []);
-
-    const handleBlur = useCallback(() => {
-        setEditable(false);
-    }, []);
-
-    return (
-        <div onDoubleClick={handleDoubleClick} className={"input-div"}>
+        return (
             <input
                 {...props}
-                onBlur={handleBlur}
                 type={type ? type : "text"}
-                ref={inputRef}
+                ref={(el) => refAssigner(el, ref, inputRef)}
             />
-            <span className={!editable ? "overlay" : ""}></span>
-        </div>
-    );
-};
+        );
+    }
+);

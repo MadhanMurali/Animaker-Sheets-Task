@@ -1,4 +1,5 @@
-import { Cells, Rows } from "./types";
+import { Cells, ColIdList, Rows, SelectionRows } from "./types";
+import { TableState } from "./interfaces";
 
 export const getHeaderByColumnIndex = (col: number) => {
     const ASCII_A = 65;
@@ -50,9 +51,94 @@ export const makeEmptyCells = (
             [j]: {
                 id: j,
                 value: defaultValue,
-                isSelectedByDrag: false,
             },
         };
     }
     return cells;
+};
+
+export const buildSelectionCoordinatesHelper = (state: TableState) => {
+    const firstSelection = state.selection.firstSelection;
+    const secondSelection = state.selection.secondSelection;
+    let selectionRows: SelectionRows = {};
+
+    if (!firstSelection) return;
+    if (!secondSelection) {
+        selectionRows[firstSelection.row] = [firstSelection.col];
+        state.selection.selectionCoordinates.rows = selectionRows;
+        return;
+    }
+
+    let rowDiff = parseInt(secondSelection.row) - parseInt(firstSelection.row);
+    let colDiff = parseInt(secondSelection.col) - parseInt(firstSelection.col);
+
+    const downRight = (swapToUpLeft = false) => {
+        let f = firstSelection;
+        // upLeft is opposite of downRight
+        if (swapToUpLeft) {
+            rowDiff =
+                parseInt(firstSelection.row) - parseInt(secondSelection.row);
+            colDiff =
+                parseInt(firstSelection.col) - parseInt(secondSelection.col);
+            f = secondSelection;
+        }
+        for (let i = 0; i <= rowDiff; i++) {
+            let colIdList: ColIdList = [];
+            let fRow = parseInt(f.row);
+            let fCol = parseInt(f.col);
+            for (let j = 0; j <= colDiff; j++) {
+                let colId =
+                    state.rows[(i + fRow).toString()][(j + fCol).toString()].id;
+                colIdList.push(colId.toString());
+            }
+            selectionRows[(i + fRow).toString()] = colIdList;
+        }
+        state.selection.selectionCoordinates.rows = selectionRows;
+    };
+
+    const downLeft = (swapToUpRight = false) => {
+        let f = firstSelection;
+        // upRight is opposite of downLeft
+        if (swapToUpRight) {
+            rowDiff =
+                parseInt(firstSelection.row) - parseInt(secondSelection.row);
+            colDiff =
+                parseInt(firstSelection.col) - parseInt(secondSelection.col);
+            f = secondSelection;
+        }
+
+        for (let i = 0; i <= rowDiff; i++) {
+            let colIdList: ColIdList = [];
+            let fRow = parseInt(f.row);
+            let fCol = parseInt(f.col);
+            for (let j = 0; j <= Math.abs(colDiff); j++) {
+                let colId = state.rows[i + fRow][fCol - j].id;
+                colIdList.push(colId.toString());
+            }
+            selectionRows[i + fRow] = colIdList;
+        }
+        state.selection.selectionCoordinates.rows = selectionRows;
+    };
+
+    if (rowDiff > 0) {
+        // down
+        if (colDiff > 0) {
+            // right
+            downRight();
+        } else {
+            // left or center
+            downLeft();
+        }
+    } else {
+        // up
+        if (colDiff < 0) {
+            // left
+            downRight(true);
+        } else {
+            // right or center
+            downLeft(true);
+        }
+    }
+
+    return state;
 };

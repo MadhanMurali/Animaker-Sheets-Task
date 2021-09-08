@@ -13,6 +13,8 @@ import {
 import { useEffect } from "react";
 import { Header } from "./header";
 import { getHeaderByColumnIndex } from "./helpers";
+import "./table.scss";
+
 export const Table = memo(() => {
     const tableState = useSelector(selectTable);
     const tableIds = useSelector(selectTableIds);

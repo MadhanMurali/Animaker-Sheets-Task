@@ -1,13 +1,18 @@
 import { CellValueType } from "./cell";
-import { Rows } from "./types";
+import {
+    CopiedSelection,
+    Ids,
+    RowColPair,
+    Rows,
+    SelectionCoordinates,
+} from "./types";
 
-export interface tableState {
+export interface TableState {
     numberOfRows: number;
     numberOfColumns: number;
     rows: Rows;
-    ids?: {
-        [key: string]: string[];
-    };
+    ids?: Ids;
+    selection: Selection;
 }
 
 export interface TablePayload {
@@ -27,4 +32,17 @@ export interface TableAddRowPayload {
 }
 export interface TableAddColPayload {
     count: number;
+}
+
+export interface Selection {
+    firstSelection?: RowColPair;
+    secondSelection?: RowColPair;
+    selectionCoordinates: SelectionCoordinates;
+    isSelecting: boolean;
+    copiedSelection: CopiedSelection;
+}
+
+export interface UpdateSelection {
+    type: "first" | "second";
+    rowColPair: RowColPair;
 }
