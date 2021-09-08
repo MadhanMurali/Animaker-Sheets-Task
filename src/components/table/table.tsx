@@ -23,7 +23,7 @@ export const Table = memo(() => {
     const HeadersJsx = useMemo(() => {
         let hJsx = [];
         for (let i = 0; i < tableState.numberOfColumns; i++) {
-            hJsx.push(<Header>{getHeaderByColumnIndex(i)}</Header>);
+            hJsx.push(<Header key={i}>{getHeaderByColumnIndex(i)}</Header>);
         }
         return hJsx;
     }, [tableState.numberOfColumns]);

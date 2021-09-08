@@ -3,20 +3,21 @@ import { Cells, Rows } from "./types";
 export const getHeaderByColumnIndex = (col: number) => {
     const ASCII_A = 65;
     let header = "";
+    col++; // track from one
 
-    const OFFSET = 1; // col starts from zero
-    let remainder = col;
-    for (
-        let quotient = Math.floor(col / 26);
-        quotient > 0;
-        quotient = Math.floor(col / 26)
-    ) {
-        remainder = col % 26;
-        header += String.fromCharCode(quotient + ASCII_A - OFFSET);
-        col = remainder;
+    while (col > 0) {
+        let remainder = Math.floor(col % 26);
+
+        if (remainder === 0) {
+            header += "Z";
+            col = Math.floor(col / 26) - 1;
+        } else {
+            header += String.fromCharCode(remainder + ASCII_A - 1);
+            col = Math.floor(col / 26);
+        }
     }
-    header += String.fromCharCode(remainder + ASCII_A);
-    return header;
+
+    return header.split("").reverse().join("");
 };
 
 export const makeEmptyRowsCells = (
